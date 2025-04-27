@@ -46,9 +46,52 @@ class HomePage extends State<MyHomePage> {
     return null;
   }
 
+Future<Map<String, dynamic>?> getGameDetails(int gameId) async {
+  // Requisição para pegar os detalhes principais do jogo
+  final response = await http.get(Uri.parse(
+      'https://api.rawg.io/api/games/$gameId?key=405fff01985046128081fa8079201873'));
+
+  if (response.statusCode == 200) {
+    final gameDetails = json.decode(response.body);
+
+    // Agora, vamos pegar as conquistas (achievements)
+    final achievementsResponse = await http.get(Uri.parse(
+        'https://api.rawg.io/api/games/$gameId/achievements?key=405fff01985046128081fa8079201873'));
+
+    if (achievementsResponse.statusCode == 200) {
+      final achievements = json.decode(achievementsResponse.body);
+      gameDetails['achievements'] = achievements['results'];  // Adicionando as conquistas ao objeto gameDetails
+    }
+
+    return gameDetails;
+  }
+  return null;
+}
+Future<String> translateToPortugueseLibreTranslate(String text) async {
+  final url = Uri.parse('https://libretranslate.de/translate');
+  
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({
+      'q': text,
+      'source': 'en', // Idioma de origem
+      'target': 'pt', // Idioma de destino (português)
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    return data['translatedText'];
+  } else {
+    throw Exception('Erro ao traduzir: ${response.statusCode}');
+  }
+}
+
   void addGame(Map<String, dynamic> game, double progress) {
     setState(() {
       myGames.add({
+        'id': game['id'],
         'name': game['name'],
         'background_image': game['background_image'],
         'rating': game['rating'],
@@ -220,6 +263,44 @@ class HomePage extends State<MyHomePage> {
     );
   }
 
+void showGameDetails(Map<String, dynamic> game) async {
+  final gameDetails = await getGameDetails(game['id']);
+  
+  // Verificando o conteúdo de gameDetails
+  print("Game Details: $gameDetails");
+
+  if (gameDetails != null) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(game['name']),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (gameDetails['description_raw'] != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text('Descrição: ${gameDetails['description_raw']}'),
+                  ),
+                // Não exibindo mais as conquistas
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
   void openUpdateProgressDialog(int index) {
     double progress = myGames[index]['progress']; // Valor inicial do progresso
 
@@ -337,6 +418,7 @@ class HomePage extends State<MyHomePage> {
                           ),
                         ],
                       ),
+                      onTap: () => showGameDetails(game),
                     ),
                   );
                 },
