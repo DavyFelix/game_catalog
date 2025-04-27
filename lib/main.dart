@@ -64,15 +64,38 @@ class HomePage extends State<MyHomePage> {
   }
 
   void deleteGame(int index) {
-    setState(() {
-      myGames.removeAt(index);
-    });
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar Exclusão'),
+          content: const Text('Você tem certeza que deseja excluir este jogo?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo sem excluir
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  myGames.removeAt(index); // Exclui o jogo
+                });
+                Navigator.pop(context); // Fecha o diálogo
+              },
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void openAddGameDialog() {
     final nameController = TextEditingController();
-    final progressController = TextEditingController();
     List<Map<String, dynamic>> searchResults = [];
+    double progress = 0.0; // Valor inicial para o progresso
 
     showDialog(
       context: context,
@@ -97,118 +120,140 @@ class HomePage extends State<MyHomePage> {
             }
           }
 
-return AlertDialog(
-  title: const Text('Adicionar Novo Jogo'),
-  content: SizedBox(
-    width: double.maxFinite,
-    child: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              labelText: 'Nome do Jogo',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (value) {
-              search(value);
-            },
-          ),
-          const SizedBox(height: 12),
-          if (searchResults.isNotEmpty)
-            SizedBox(
-              height: 200, // Aqui limitamos de verdade
-              child: ListView.builder(
-                itemCount: searchResults.length,
-                itemBuilder: (context, index) {
-                  final game = searchResults[index];
-                  return ListTile(
-                    leading: game['background_image'] != null
-                        ? Image.network(
-                            game['background_image'],
-                            width: 40,
-                            height: 40,
-                            fit: BoxFit.cover,
-                          )
-                        : const Icon(Icons.videogame_asset),
-                    title: Text(game['name']),
-                    onTap: () {
-                      nameController.text = game['name'];
-                      setStateDialog(() {
-                        searchResults = [];
-                      });
-                    },
-                  );
-                },
+          return AlertDialog(
+            title: const Text('Adicionar Novo Jogo'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nome do Jogo',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        search(value);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    if (searchResults.isNotEmpty)
+                      SizedBox(
+                        height: 200, // Aqui limitamos de verdade
+                        child: ListView.builder(
+                          itemCount: searchResults.length,
+                          itemBuilder: (context, index) {
+                            final game = searchResults[index];
+                            return ListTile(
+                              leading: game['background_image'] != null
+                                  ? Image.network(
+                                      game['background_image'],
+                                      width: 40,
+                                      height: 40,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const Icon(Icons.videogame_asset),
+                              title: Text(game['name']),
+                              onTap: () {
+                                nameController.text = game['name'];
+                                setStateDialog(() {
+                                  searchResults = [];
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    const SizedBox(height: 12),
+                    // Slider para selecionar o progresso
+                    Text('Progresso: ${progress.toStringAsFixed(1)}%',
+                        style: const TextStyle(fontSize: 16)),
+                    Slider(
+                      value: progress,
+                      min: 0.0,
+                      max: 100.0,
+                      divisions: 100,
+                      label: '${progress.toStringAsFixed(1)}%',
+                      onChanged: (double newProgress) {
+                        setStateDialog(() {
+                          progress = newProgress; // Atualiza o valor do progresso
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: progressController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Progresso (%)',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-  actions: [
-    TextButton(
-      onPressed: () async {
-        final name = nameController.text;
-        final progress = double.tryParse(progressController.text) ?? 0.0;
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  final name = nameController.text;
+                  if (name.isEmpty || progress == 0.0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Por favor, insira todos os dados')),
+                    );
+                    return;
+                  }
 
-        final game = await searchGame(name);
-        if (game != null) {
-          addGame(game, progress);
-          Navigator.pop(context);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Jogo não encontrado')),
+                  final game = await searchGame(name);
+                  if (game != null) {
+                    addGame(game, progress);
+                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Jogo não encontrado')),
+                    );
+                  }
+                },
+                child: const Text('Adicionar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+            ],
           );
-        }
-      },
-      child: const Text('Adicionar'),
-    ),
-    TextButton(
-      onPressed: () => Navigator.pop(context),
-      child: const Text('Cancelar'),
-    ),
-  ],
-);
-
         });
       },
     );
   }
 
   void openUpdateProgressDialog(int index) {
-    final progressController = TextEditingController(
-      text: myGames[index]['progress'].toString(),
-    );
+    double progress = myGames[index]['progress']; // Valor inicial do progresso
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Atualizar Progresso'),
-          content: TextField(
-            controller: progressController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Novo Progresso (%)',
-              border: OutlineInputBorder(),
-            ),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Progresso Atual: ${progress.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 16)),
+                  Slider(
+                    value: progress,
+                    min: 0.0,
+                    max: 100.0,
+                    divisions: 100,
+                    label: '${progress.toStringAsFixed(1)}%',
+                    onChanged: (double newProgress) {
+                      setStateDialog(() {
+                        progress = newProgress; // Atualiza o valor do progresso
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
           ),
           actions: [
             TextButton(
               onPressed: () {
-                final newProgress = double.tryParse(progressController.text) ?? 0.0;
-                updateGame(index, newProgress);
+                updateGame(index, progress); // Atualiza o progresso do jogo
                 Navigator.pop(context);
               },
               child: const Text('Atualizar'),
@@ -271,7 +316,7 @@ return AlertDialog(
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
-                        'Rating: ${game['rating']} | Progresso: ${game['progress']}%',
+                        'Nota : ${game['rating']} | Progresso: ${game['progress']}%',
                       ),
                       trailing: PopupMenuButton<String>(
                         onSelected: (value) {
