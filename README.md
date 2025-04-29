@@ -35,7 +35,7 @@ Ao abrir o app, você será saudado com um **catálogo de jogos** onde poderá v
 
 2. **Entre na pasta do projeto:**
    ```bash
-   cd catalogo-de-jogos
+   cd game-catalog
    ```
 
 3. **Instale as dependências do Flutter:**
