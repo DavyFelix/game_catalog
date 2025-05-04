@@ -30,12 +30,12 @@ Ao abrir o app, você será saudado com um **catálogo de jogos** onde poderá v
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/seu-usuario/catalogo-de-jogos.git
+   git clone https://github.com/DavyFelix/game_catalog.git
    ```
 
 2. **Entre na pasta do projeto:**
    ```bash
-   cd catalogo-de-jogos
+   cd game_catalog
    ```
 
 3. **Instale as dependências do Flutter:**
