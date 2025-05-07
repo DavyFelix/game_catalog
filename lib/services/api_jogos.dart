@@ -5,14 +5,18 @@ class GameApiService {
   static const String _apiKey = '405fff01985046128081fa8079201873';
   static const String _baseUrl = 'https://api.rawg.io/api/games';
 
-  // Função para buscar um jogo pelo nome
-  static Future<Map<String, dynamic>?> searchGame(String name) async {
+  // Função para buscar jogos pelo nome (retorna lista)
+  static Future<List<Map<String, dynamic>>?> searchGame(String name) async {
     try {
-      final response = await http.get(Uri.parse('$_baseUrl?search=$name&key=$_apiKey'));
+      final url = Uri.parse('$_baseUrl?search=$name&page_size=10&key=$_apiKey');
+      final response = await http.get(url);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['results'] != null && data['results'].isNotEmpty) {
-          return data['results'][0]; // Retorna o primeiro jogo encontrado
+        final results = data['results'];
+
+        if (results != null && results is List) {
+          return List<Map<String, dynamic>>.from(results);
         }
       }
       return null;
@@ -28,13 +32,14 @@ class GameApiService {
       final detailsRes = await http.get(Uri.parse('$_baseUrl/$gameId?key=$_apiKey'));
       if (detailsRes.statusCode == 200) {
         final gameDetails = json.decode(detailsRes.body);
-        
-        // Obter as conquistas do jogo
+
+        // Obter conquistas do jogo
         final achievementsRes = await http.get(Uri.parse('$_baseUrl/$gameId/achievements?key=$_apiKey'));
         if (achievementsRes.statusCode == 200) {
           final achievements = json.decode(achievementsRes.body);
           gameDetails['achievements'] = achievements['results'] ?? [];
         }
+
         return gameDetails;
       }
       return null;

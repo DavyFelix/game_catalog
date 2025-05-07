@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../components/card_jogos.dart';
 import '../services/api_jogos.dart';
+import 'add_games.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -52,115 +53,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void openAddGameDialog() {
-    final nameController = TextEditingController();
-    double progress = 0.0;
-    List<Map<String, dynamic>> searchResults = [];
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) {
-          Future<void> search(String name) async {
-            if (name.isEmpty) {
-              setStateDialog(() {
-                searchResults = [];
-              });
-              return;
-            }
-
-            final response = await GameApiService.searchGame(name);
-            if (response != null) {
-              setStateDialog(() => searchResults = [response]);
-            }
-          }
-
-          return AlertDialog(
-            title: const Text('Adicionar Novo Jogo'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nome do Jogo'),
-                      onChanged: search,
-                    ),
-                    const SizedBox(height: 12),
-                    if (searchResults.isNotEmpty)
-                      SizedBox(
-                        height: 100,
-                        child: ListView.builder(
-                          itemCount: searchResults.length,
-                          itemBuilder: (_, index) {
-                            final game = searchResults[index];
-                            return ListTile(
-                              leading: game['background_image'] != null
-                                  ? Image.network(
-                                      game['background_image'],
-                                      width: 40,
-                                      height: 40,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const Icon(Icons.videogame_asset),
-                              title: Text(game['name']),
-                              onTap: () {
-                                nameController.text = game['name'];
-                                setStateDialog(() => searchResults = []);
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    const SizedBox(height: 12),
-                    Text('Progresso: ${progress.toStringAsFixed(1)}%'),
-                    Slider(
-                      value: progress,
-                      min: 0.0,
-                      max: 100.0,
-                      divisions: 100,
-                      label: '${progress.toStringAsFixed(1)}%',
-                      onChanged: (value) => setStateDialog(() => progress = value),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  final name = nameController.text;
-                  if (name.isEmpty || progress == 0.0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Por favor, insira todos os dados')),
-                    );
-                    return;
-                  }
-
-                  final game = await GameApiService.searchGame(name);
-                  if (game != null) {
-                    addGame(game, progress);
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Jogo não encontrado')),
-                    );
-                  }
-                },
-                child: const Text('Adicionar'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+ void openAddGamePage() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => AddGamePage(onAdd: addGame),
+    ),
+  );
+}
 
   void openUpdateProgressDialog(int index) {
     double progress = myGames[index]['progress'];
@@ -237,14 +137,6 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Stack(
         children: [
-          // Imagem de fundo
-          Positioned.fill(
-            child: Image.asset(
-                'assets/background.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-
           // Conteúdo sobreposto à imagem
           Padding(
             padding: const EdgeInsets.all(16),
@@ -270,7 +162,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: openAddGameDialog,
+        onPressed: openAddGamePage,
         child: const Icon(Icons.add),
       ),
     );
