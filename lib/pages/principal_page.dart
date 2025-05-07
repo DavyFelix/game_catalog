@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../components/card_jogos.dart';
 import '../services/api_jogos.dart';
 import 'add_games.dart';
+import 'details.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -98,21 +99,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void showGameDetails(Map<String, dynamic> game) async {
-    final details = await GameApiService.getGameDetails(game['id']);
-    if (details != null) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text(game['name']),
-          content: Text(details['description_raw'] ?? 'Sem descrição disponível.'),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar')),
-          ],
-        ),
-      );
-    }
-  }
 
   String formatDate(String isoString) {
     try {
@@ -150,13 +136,23 @@ class _HomePageState extends State<HomePage> {
                   )
                 : ListView.builder(
                     itemCount: myGames.length,
-                    itemBuilder: (_, index) => GameCard(
-                      game: myGames[index],
-                      onTap: () => showGameDetails(myGames[index]),
-                      onEdit: () => openUpdateProgressDialog(index),
-                      onDelete: () => deleteGame(index),
-                      lastModified: formatDate(myGames[index]['lastModified']),
-                    ),
+                  itemBuilder: (_, index) {
+  final game = myGames[index];
+  return GameCard(
+    game: game,
+    onTap: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailsPage(game: myGames[index]),
+      ),
+    ),
+
+    onEdit: () => openUpdateProgressDialog(index),
+    onDelete: () => deleteGame(index),
+    lastModified: formatDate(game['lastModified']),
+  );
+},
+
                   ),
           ),
         ],
