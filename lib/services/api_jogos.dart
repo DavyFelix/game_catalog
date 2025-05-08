@@ -44,7 +44,6 @@ class GameApiService {
       }
       return null;
     } catch (e) {
-      print('Erro na requisição de detalhes do jogo: $e');
       return null;
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_catalog/utils/colorsbar.dart';
 import '../services/api_jogos.dart';
 
 class DetailsPage extends StatefulWidget {
@@ -36,9 +37,14 @@ class _DetailsPageState extends State<DetailsPage> {
       appBar: AppBar(
         title: Text(
           widget.game['name'],
-          style: const TextStyle(color: Colors.black),
+          style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
         ),
-        backgroundColor: Colors.white,
+       backgroundColor: ColorsbBars.fromGenre(
+        (gameDetails?['genres']?.isNotEmpty ?? false)
+            ? gameDetails!['genres'][0]['name']
+            : '',
+      ),
+
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

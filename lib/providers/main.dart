@@ -13,7 +13,7 @@ class App extends StatelessWidget {
       title: 'Catálogo de Jogos',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 58, 164, 183)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 65, 190, 212)),
       ),
       home: const HomePage(),
     );
