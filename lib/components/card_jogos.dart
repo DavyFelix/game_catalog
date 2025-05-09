@@ -25,7 +25,7 @@ class GameCard extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           child: Image.network(
             game['background_image'] ?? '',
             width: 60,

@@ -76,7 +76,7 @@ class _DetailsPageState extends State<DetailsPage> {
     final imageUrl = gameDetails!['background_image'];
     return imageUrl != null
         ? ClipRRect(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(5),
             child: Image.network(imageUrl),
           )
         : const SizedBox.shrink();

@@ -21,7 +21,6 @@ class GameApiService {
       }
       return null;
     } catch (e) {
-      print('Erro na requisição de busca: $e');
       return null;
     }
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:game_catalog/components/drawermenu.dart';
 import 'package:intl/intl.dart';
 import '../components/card_jogos.dart';
-import '../services/api_jogos.dart';
 import 'add_games.dart';
 import 'details.dart';
 
@@ -112,6 +112,7 @@ class _HomePageState extends State<HomePage> {
   @override
     Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DrawerMenu(),
       appBar: AppBar(
         title: const Text(
           'Catálogo de Jogos',
@@ -121,6 +122,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         elevation: 1,
       ),
+ 
       body: Stack(
         children: [
           // Conteúdo sobreposto à imagem
