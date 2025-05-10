@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_catalog/pages/sobre_page.dart';
 
 class DrawerMenu extends StatelessWidget {
   const DrawerMenu({super.key});
@@ -65,8 +66,13 @@ DrawerHeader(
             title: Text("Sobre"),
             trailing: Icon(Icons.arrow_right),
             onTap: () {
-              Navigator.pop(context);
-            },
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const SobrePage(),
+              ),
+            );
+          },
           ),
         ],
       ),
