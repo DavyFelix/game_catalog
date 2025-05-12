@@ -13,7 +13,7 @@ DrawerHeader(
   decoration: BoxDecoration(
     image: DecorationImage(
       image: AssetImage('assets/images/menuft.png'),
-      fit: BoxFit.cover, // ou BoxFit.fitWidth se preferir
+      fit: BoxFit.cover,
     ),
   ),
             child: Center(
