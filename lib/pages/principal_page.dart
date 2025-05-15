@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:game_catalog/components/drawermenu.dart';
 import 'package:intl/intl.dart';
 import '../components/card_jogos.dart';
+import '../components/drawermenu.dart';
 import 'add_games.dart';
 import 'details.dart';
 
@@ -13,38 +13,44 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Map<String, dynamic>> myGames = [];
+  final List<Map<String, dynamic>> _myGames = [];
 
-  void addGame(Map<String, dynamic> game, double progress) {
+  // Adiciona novo jogo
+void addGame(Map<String, dynamic> game, double progress, double? lat, double? lng) {
+  setState(() {
+    _myGames.add({
+      ...game,
+      'progress': progress,
+      'latitude': lat,
+      'longitude': lng,
+      'lastModified': DateTime.now().toIso8601String(),
+    });
+  });
+}
+
+  // Atualiza progresso de um jogo existente
+  void _updateGame(int index, double progress) {
     setState(() {
-      myGames.add({
-        ...game,
-        'progress': progress,
-        'lastModified': DateTime.now().toIso8601String(),
-      });
+      _myGames[index]['progress'] = progress;
+      _myGames[index]['lastModified'] = DateTime.now().toIso8601String();
     });
   }
 
-  void updateGame(int index, double newProgress) {
-    setState(() {
-      myGames[index]['progress'] = newProgress;
-      myGames[index]['lastModified'] = DateTime.now().toIso8601String();
-    });
-  }
-
-  void deleteGame(int index) {
+  // Remove jogo com confirmação
+  void _deleteGame(int index) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Confirmar Exclusão'),
         content: const Text('Deseja excluir este jogo?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           TextButton(
             onPressed: () {
-              setState(() {
-                myGames.removeAt(index);
-              });
+              setState(() => _myGames.removeAt(index));
               Navigator.pop(context);
             },
             child: const Text('Excluir'),
@@ -54,33 +60,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
- void openAddGamePage() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => AddGamePage(onAdd: addGame),
-    ),
-  );
-}
+  // Formata data para exibição
+  String _formatDate(String isoDate) {
+    try {
+      final date = DateTime.parse(isoDate);
+      return DateFormat('dd/MM/yyyy HH:mm').format(date);
+    } catch (_) {
+      return 'Data inválida';
+    }
+  }
 
-  void openUpdateProgressDialog(int index) {
-    double progress = myGames[index]['progress'];
+  // Abre a tela de adicionar jogo
+  void _openAddGamePage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddGamePage(onAdd: addGame),
+      ),
+    );
+  }
+
+  // Diálogo para atualizar o progresso
+  void _showUpdateProgressDialog(int index) {
+    double tempProgress = _myGames[index]['progress'];
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text('Atualizar Progresso'),
         content: StatefulBuilder(
           builder: (context, setStateDialog) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Progresso Atual: ${progress.toStringAsFixed(1)}%'),
+              Text('Progresso Atual: ${tempProgress.toStringAsFixed(1)}%'),
               Slider(
-                value: progress,
-                min: 0.0,
-                max: 100.0,
+                value: tempProgress,
+                min: 0,
+                max: 100,
                 divisions: 100,
-                label: '${progress.toStringAsFixed(1)}%',
-                onChanged: (value) => setStateDialog(() => progress = value),
+                label: '${tempProgress.toStringAsFixed(1)}%',
+                onChanged: (value) => setStateDialog(() => tempProgress = value),
               ),
             ],
           ),
@@ -88,81 +106,63 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: () {
-              updateGame(index, progress);
+              _updateGame(index, tempProgress);
               Navigator.pop(context);
             },
             child: const Text('Atualizar'),
           ),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
         ],
       ),
     );
   }
 
-
-  String formatDate(String isoString) {
-    try {
-      final dateTime = DateTime.parse(isoString);
-      return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
-    } catch (_) {
-      return 'Data inválida';
-    }
-  }
-
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      drawer: DrawerMenu(),
+      drawer: const DrawerMenu(),
       appBar: AppBar(
-        title: const Text(
-          'Catálogo de Jogos',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const Text('Catálogo de Jogos', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         centerTitle: true,
         elevation: 1,
       ),
- 
-      body: Stack(
-        children: [
-          // Conteúdo sobreposto à imagem
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: myGames.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Nenhum jogo adicionado ainda.\nClique no botão "+" para começar!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, color: Colors.black54),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: _myGames.isEmpty
+            ? const Center(
+                child: Text(
+                  'Nenhum jogo adicionado ainda.\nClique no botão "+" para começar!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, color: Colors.black54),
+                ),
+              )
+            : ListView.builder(
+                itemCount: _myGames.length,
+                itemBuilder: (_, index) {
+                  final game = _myGames[index];
+                  return GameCard(
+                    game: game,
+                    lastModified: _formatDate(game['lastModified']),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DetailsPage(game: game),
+                      ),
                     ),
-                  )
-                : ListView.builder(
-                    itemCount: myGames.length,
-                  itemBuilder: (_, index) {
-  final game = myGames[index];
-  return GameCard(
-    game: game,
-    onTap: () => Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => DetailsPage(game: myGames[index]),
-      ),
-    ),
-
-    onEdit: () => openUpdateProgressDialog(index),
-    onDelete: () => deleteGame(index),
-    lastModified: formatDate(game['lastModified']),
-  );
-},
-
-                  ),
-          ),
-        ],
+                    onEdit: () => _showUpdateProgressDialog(index),
+                    onDelete: () => _deleteGame(index),
+                  );
+                },
+              ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: openAddGamePage,
+        onPressed: _openAddGamePage,
         child: const Icon(Icons.add),
       ),
     );
-    }
+  }
 }

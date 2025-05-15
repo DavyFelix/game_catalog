@@ -3,7 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import '../services/api_jogos.dart';
 
 class AddGamePage extends StatefulWidget {
-  final Function(Map<String, dynamic>, double) onAdd;
+  final Function(Map<String, dynamic> game, double progress, double? lat, double? lon) onAdd;
 
   const AddGamePage({super.key, required this.onAdd});
 
@@ -17,6 +17,14 @@ class _AddGamePageState extends State<AddGamePage> {
   double progress = 0.0;
   List<Map<String, dynamic>> searchResults = [];
   Map<String, dynamic>? selectedGame;
+  late Future<Position> locationFuture;
+  Position? userPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    locationFuture = _getLocation();
+  }
 
   Future<void> search(String name) async {
     if (name.isEmpty) {
@@ -36,22 +44,23 @@ class _AddGamePageState extends State<AddGamePage> {
     }
   }
 
-  Future<Position> _getLocation () async{
+  Future<Position> _getLocation() async {
     bool isEnabled = await Geolocator.isLocationServiceEnabled();
-    if (isEnabled){
-      LocationPermission permission = await Geolocator.checkPermission();
-      if(permission == LocationPermission.denied){
-        permission = await Geolocator.requestPermission();
-        if (permission != LocationPermission.denied && 
-        permission != LocationPermission.deniedForever){
-          return await Geolocator.getCurrentPosition();
-        }
-     }
+    if (!isEnabled) return Future.error("Serviço de localização desativado");
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
     }
-    return Future.error("Permissao Negada");
+
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      return Future.error("Permissão negada");
+    }
+
+    return await Geolocator.getCurrentPosition();
   }
 
-  void submit() async {
+  void submit() {
     if (selectedGame == null || progress == 0.0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Selecione um jogo e defina o progresso.')),
@@ -59,7 +68,10 @@ class _AddGamePageState extends State<AddGamePage> {
       return;
     }
 
-    widget.onAdd(selectedGame!, progress);
+    final lat = userPosition?.latitude;
+    final lon = userPosition?.longitude;
+
+    widget.onAdd(selectedGame!, progress, lat, lon);
     Navigator.pop(context);
   }
 
@@ -68,77 +80,76 @@ class _AddGamePageState extends State<AddGamePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Adicionar Novo Jogo')),
       body: Padding(
-      padding: const EdgeInsets.all(16),
-      child: FutureBuilder<Position>(
-      future: _getLocation(),
-      builder: (context, snapshot) {
-      var state = snapshot.connectionState;
+        padding: const EdgeInsets.all(16),
+        child: FutureBuilder<Position>(
+          future: locationFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text("Ocorreu um erro ao obter localização."));
+            } else {
+              userPosition = snapshot.data;
 
-      if (state == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return const Center(child: Text("Ocorreu um erro ao obter localização."));
-      } else {
-        return Column(
-          children: [
-            TextField(
-              controller: nameController,
-              focusNode: nameFocus,
-              decoration: const InputDecoration(labelText: 'Nome do Jogo'),
-              onChanged: search,
-              maxLength: 40,
-            ),
-            if (searchResults.isNotEmpty)
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  itemCount: searchResults.length,
-                  itemBuilder: (_, index) {
-                    final game = searchResults[index];
-                    return ListTile(
-                      leading: game['background_image'] != null
-                          ? Image.network(
-                              game['background_image'],
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.cover,
-                            )
-                          : const Icon(Icons.videogame_asset),
-                      title: Text(game['name']),
-                      onTap: () {
-                        nameController.text = game['name'];
-                        setState(() {
-                          selectedGame = game;
-                          searchResults = [];
-                        });
-                        FocusScope.of(context).unfocus();
-                      },
-                    );
-                  },
-                ),
-              ),
-            const SizedBox(height: 20),
-            Text('Progresso: ${progress.toStringAsFixed(1)}%'),
-            Slider(
-              value: progress,
-              min: 0.0,
-              max: 100.0,
-              divisions: 100,
-              label: '${progress.toStringAsFixed(1)}%',
-              onChanged: (value) => setState(() => progress = value),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: submit,
-              child: const Text('Adicionar Jogo'),
-            ),
-          ],
-        );
-      }
-    },
-  ),
-),
-
+              return Column(
+                children: [
+                  TextField(
+                    controller: nameController,
+                    focusNode: nameFocus,
+                    decoration: const InputDecoration(labelText: 'Nome do Jogo'),
+                    onChanged: search,
+                    maxLength: 40,
+                  ),
+                  if (searchResults.isNotEmpty)
+                    SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        itemCount: searchResults.length,
+                        itemBuilder: (_, index) {
+                          final game = searchResults[index];
+                          return ListTile(
+                            leading: game['background_image'] != null
+                                ? Image.network(
+                                    game['background_image'],
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Icon(Icons.videogame_asset),
+                            title: Text(game['name']),
+                            onTap: () {
+                              nameController.text = game['name'];
+                              setState(() {
+                                selectedGame = game;
+                                searchResults = [];
+                              });
+                              FocusScope.of(context).unfocus();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                  Text('Progresso: ${progress.toStringAsFixed(1)}%'),
+                  Slider(
+                    value: progress,
+                    min: 0.0,
+                    max: 100.0,
+                    divisions: 100,
+                    label: '${progress.toStringAsFixed(1)}%',
+                    onChanged: (value) => setState(() => progress = value),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: submit,
+                    child: const Text('Adicionar Jogo'),
+                  ),
+                ],
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 
