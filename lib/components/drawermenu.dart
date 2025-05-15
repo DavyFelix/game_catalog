@@ -9,13 +9,13 @@ class DrawerMenu extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-DrawerHeader(
-  decoration: BoxDecoration(
-    image: DecorationImage(
-      image: AssetImage('assets/images/menuft.png'),
-      fit: BoxFit.cover, // ou BoxFit.fitWidth se preferir
-    ),
-  ),
+          DrawerHeader(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/menuft.png'),
+                fit: BoxFit.cover, // ou BoxFit.fitWidth se preferir
+              ),
+            ),
             child: Center(
               child: Stack(
                 children: [

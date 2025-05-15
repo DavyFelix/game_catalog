@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../services/api_jogos.dart';
 
 class AddGamePage extends StatefulWidget {
@@ -35,6 +36,21 @@ class _AddGamePageState extends State<AddGamePage> {
     }
   }
 
+  Future<Position> _getLocation () async{
+    bool isEnabled = await Geolocator.isLocationServiceEnabled();
+    if (isEnabled){
+      LocationPermission permission = await Geolocator.checkPermission();
+      if(permission == LocationPermission.denied){
+        permission = await Geolocator.requestPermission();
+        if (permission != LocationPermission.denied && 
+        permission != LocationPermission.deniedForever){
+          return await Geolocator.getCurrentPosition();
+        }
+     }
+    }
+    return Future.error("Permissao Negada");
+  }
+
   void submit() async {
     if (selectedGame == null || progress == 0.0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,8 +68,18 @@ class _AddGamePageState extends State<AddGamePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Adicionar Novo Jogo')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      padding: const EdgeInsets.all(16),
+      child: FutureBuilder<Position>(
+      future: _getLocation(),
+      builder: (context, snapshot) {
+      var state = snapshot.connectionState;
+
+      if (state == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return const Center(child: Text("Ocorreu um erro ao obter localização."));
+      } else {
+        return Column(
           children: [
             TextField(
               controller: nameController,
@@ -107,8 +133,12 @@ class _AddGamePageState extends State<AddGamePage> {
               child: const Text('Adicionar Jogo'),
             ),
           ],
-        ),
-      ),
+        );
+      }
+    },
+  ),
+),
+
     );
   }
 
