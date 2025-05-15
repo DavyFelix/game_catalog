@@ -9,6 +9,7 @@ class DrawerMenu extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
+<<<<<<< HEAD
           DrawerHeader(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -16,6 +17,15 @@ class DrawerMenu extends StatelessWidget {
                 fit: BoxFit.cover, // ou BoxFit.fitWidth se preferir
               ),
             ),
+=======
+DrawerHeader(
+  decoration: BoxDecoration(
+    image: DecorationImage(
+      image: AssetImage('assets/images/menuft.png'),
+      fit: BoxFit.cover,
+    ),
+  ),
+>>>>>>> 123370b45f184aae887afbbbcbe4eebcc7bf23e9
             child: Center(
               child: Stack(
                 children: [
