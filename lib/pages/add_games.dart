@@ -96,102 +96,125 @@ class _AddGamePageState extends State<AddGamePage> {
     Navigator.pop(context);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Adicionar Novo Jogo')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: FutureBuilder<Position>(
-          future: locationFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return const Center(child: Text("Ocorreu um erro ao obter localização."));
-            } else {
-              userPosition = snapshot.data;
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: const Text('Adicionar Novo Jogo')),
+    body: Stack(
+      children: [
+        // 📷 Imagem de fundo
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/fundo.jpg'), 
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
 
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      focusNode: nameFocus,
-                      decoration: const InputDecoration(labelText: 'Nome do Jogo'),
-                      onChanged: search,
-                      maxLength: 55,
-                    ),
-                    if (searchResults.isNotEmpty)
-                      SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          itemCount: searchResults.length,
-                          itemBuilder: (_, index) {
-                            final game = searchResults[index];
-                            return ListTile(
-                              leading: game['background_image'] != null
-                                  ? Image.network(game['background_image'], width: 40, height: 40, fit: BoxFit.cover)
-                                  : const Icon(Icons.videogame_asset),
-                              title: Text(game['name']),
-                              onTap: () {
-                                nameController.text = game['name'];
-                                setState(() {
-                                  selectedGame = game;
-                                  searchResults = [];
-                                });
-                                FocusScope.of(context).unfocus();
+        // 🧱 Conteúdo com fundo transparente
+        Padding(
+          padding: const EdgeInsets.all(5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: FutureBuilder<Position>(
+              future: locationFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text("Ocorreu um erro ao obter localização."));
+                } else {
+                  userPosition = snapshot.data;
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          focusNode: nameFocus,
+                          decoration: const InputDecoration(labelText: 'Nome do Jogo'),
+                          onChanged: search,
+                          maxLength: 55,
+                        ),
+                        if (searchResults.isNotEmpty)
+                          SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              itemCount: searchResults.length,
+                              itemBuilder: (_, index) {
+                                final game = searchResults[index];
+                                return ListTile(
+                                  leading: game['background_image'] != null
+                                      ? Image.network(game['background_image'], width: 40, height: 40, fit: BoxFit.cover)
+                                      : const Icon(Icons.videogame_asset),
+                                  title: Text(game['name']),
+                                  onTap: () {
+                                    nameController.text = game['name'];
+                                    setState(() {
+                                      selectedGame = game;
+                                      searchResults = [];
+                                    });
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                );
                               },
-                            );
+                            ),
+                          ),
+                        const SizedBox(height: 20),
+                        Text('Progresso: ${progress.toStringAsFixed(1)}%'),
+                        Slider(
+                          value: progress,
+                          min: 0.0,
+                          max: 100.0,
+                          divisions: 100,
+                          label: '${progress.toStringAsFixed(1)}%',
+                          onChanged: (value) => setState(() => progress = value),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text('Última vez em que foi jogado:'),
+                        SwitchListTile(
+                          title: const Text('Usar localização atual'),
+                          value: useCurrentLocation,
+                          onChanged: (val) {
+                            setState(() {
+                              useCurrentLocation = val;
+                              selectedLocation = null;
+                              locationController.clear();
+                            });
                           },
                         ),
-                      ),
-                    const SizedBox(height: 20),
-                    Text('Progresso: ${progress.toStringAsFixed(1)}%'),
-                    Slider(
-                      value: progress,
-                      min: 0.0,
-                      max: 100.0,
-                      divisions: 100,
-                      label: '${progress.toStringAsFixed(1)}%',
-                      onChanged: (value) => setState(() => progress = value),
+                        if (!useCurrentLocation)
+                          LocationSelector(
+                            enabled: true,
+                            onLocationSelected: (place) {
+                              setState(() {
+                                selectedLocation = place;
+                              });
+                            },
+                          ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: submit,
+                          child: const Text('Adicionar Jogo'),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    Text('Ultima vez em que foi jogado:'),
-                    SwitchListTile(
-                      title: const Text('Usar localização atual'),
-                      value: useCurrentLocation,
-                      onChanged: (val) {
-                        setState(() {
-                          useCurrentLocation = val;
-                          selectedLocation = null;
-                          locationController.clear();
-                        });
-                      },
-                    ),
-                    if (!useCurrentLocation)
-                      LocationSelector(
-                        enabled: true,
-                        onLocationSelected: (place) {
-                          setState(() {
-                            selectedLocation = place;
-                          });
-                        },
-                      ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: submit,
-                      child: const Text('Adicionar Jogo'),
-                    ),
-                  ],
-                ),
-              );
-            }
-          },
+                  );
+                }
+              },
+            ),
+          ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
+
 
   @override
   void dispose() {
