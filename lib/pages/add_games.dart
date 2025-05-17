@@ -148,6 +148,7 @@ class _AddGamePageState extends State<AddGamePage> {
                       onChanged: (value) => setState(() => progress = value),
                     ),
                     const SizedBox(height: 20),
+                    Text('Ultima vez em que foi jogado:'),
                     SwitchListTile(
                       title: const Text('Usar localização atual'),
                       value: useCurrentLocation,

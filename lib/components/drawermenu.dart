@@ -53,14 +53,14 @@ class DrawerMenu extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
+          /*ListTile(
             leading: Icon(Icons.star_outlined),
             title: Text("Favoritos"),
             trailing: Icon(Icons.arrow_right),
             onTap: () {
               Navigator.pop(context);
             },
-          ),
+          ),*/
           ListTile(
             leading: Icon(Icons.info_outline_rounded),
             title: Text("Sobre"),
