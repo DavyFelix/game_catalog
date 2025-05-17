@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/api_jogos.dart';
+import '../services/map.dart';  // Import do widget LocationSelector (ajuste o caminho conforme seu projeto)
 
 class AddGamePage extends StatefulWidget {
   final Function(Map<String, dynamic> game, double progress, double? lat, double? lon) onAdd;
@@ -13,10 +14,13 @@ class AddGamePage extends StatefulWidget {
 
 class _AddGamePageState extends State<AddGamePage> {
   final nameController = TextEditingController();
+  final locationController = TextEditingController();
   final FocusNode nameFocus = FocusNode();
   double progress = 0.0;
   List<Map<String, dynamic>> searchResults = [];
   Map<String, dynamic>? selectedGame;
+  Map<String, dynamic>? selectedLocation;
+  bool useCurrentLocation = true;
   late Future<Position> locationFuture;
   Position? userPosition;
 
@@ -68,8 +72,16 @@ class _AddGamePageState extends State<AddGamePage> {
       return;
     }
 
-    final lat = userPosition?.latitude;
-    final lon = userPosition?.longitude;
+    double? lat;
+    double? lon;
+
+    if (useCurrentLocation) {
+      lat = userPosition?.latitude;
+      lon = userPosition?.longitude;
+    } else {
+      lat = selectedLocation?['lat'];
+      lon = selectedLocation?['lon'];
+    }
 
     widget.onAdd(selectedGame!, progress, lat, lon);
     Navigator.pop(context);
@@ -91,60 +103,78 @@ class _AddGamePageState extends State<AddGamePage> {
             } else {
               userPosition = snapshot.data;
 
-              return Column(
-                children: [
-                  TextField(
-                    controller: nameController,
-                    focusNode: nameFocus,
-                    decoration: const InputDecoration(labelText: 'Nome do Jogo'),
-                    onChanged: search,
-                    maxLength: 40,
-                  ),
-                  if (searchResults.isNotEmpty)
-                    SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                        itemCount: searchResults.length,
-                        itemBuilder: (_, index) {
-                          final game = searchResults[index];
-                          return ListTile(
-                            leading: game['background_image'] != null
-                                ? Image.network(
-                                    game['background_image'],
-                                    width: 40,
-                                    height: 40,
-                                    fit: BoxFit.cover,
-                                  )
-                                : const Icon(Icons.videogame_asset),
-                            title: Text(game['name']),
-                            onTap: () {
-                              nameController.text = game['name'];
-                              setState(() {
-                                selectedGame = game;
-                                searchResults = [];
-                              });
-                              FocusScope.of(context).unfocus();
-                            },
-                          );
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      focusNode: nameFocus,
+                      decoration: const InputDecoration(labelText: 'Nome do Jogo'),
+                      onChanged: search,
+                      maxLength: 40,
+                    ),
+                    if (searchResults.isNotEmpty)
+                      SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          itemCount: searchResults.length,
+                          itemBuilder: (_, index) {
+                            final game = searchResults[index];
+                            return ListTile(
+                              leading: game['background_image'] != null
+                                  ? Image.network(game['background_image'], width: 40, height: 40, fit: BoxFit.cover)
+                                  : const Icon(Icons.videogame_asset),
+                              title: Text(game['name']),
+                              onTap: () {
+                                nameController.text = game['name'];
+                                setState(() {
+                                  selectedGame = game;
+                                  searchResults = [];
+                                });
+                                FocusScope.of(context).unfocus();
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+                    Text('Progresso: ${progress.toStringAsFixed(1)}%'),
+                    Slider(
+                      value: progress,
+                      min: 0.0,
+                      max: 100.0,
+                      divisions: 100,
+                      label: '${progress.toStringAsFixed(1)}%',
+                      onChanged: (value) => setState(() => progress = value),
+                    ),
+                    const SizedBox(height: 20),
+                    SwitchListTile(
+                      title: const Text('Usar localização atual'),
+                      value: useCurrentLocation,
+                      onChanged: (val) {
+                        setState(() {
+                          useCurrentLocation = val;
+                          selectedLocation = null;
+                          locationController.clear();
+                        });
+                      },
+                    ),
+                    if (!useCurrentLocation)
+                      LocationSelector(
+                        enabled: true,
+                        onLocationSelected: (place) {
+                          setState(() {
+                            selectedLocation = place;
+                          });
                         },
                       ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: submit,
+                      child: const Text('Adicionar Jogo'),
                     ),
-                  const SizedBox(height: 20),
-                  Text('Progresso: ${progress.toStringAsFixed(1)}%'),
-                  Slider(
-                    value: progress,
-                    min: 0.0,
-                    max: 100.0,
-                    divisions: 100,
-                    label: '${progress.toStringAsFixed(1)}%',
-                    onChanged: (value) => setState(() => progress = value),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: submit,
-                    child: const Text('Adicionar Jogo'),
-                  ),
-                ],
+                  ],
+                ),
               );
             }
           },
@@ -157,6 +187,7 @@ class _AddGamePageState extends State<AddGamePage> {
   void dispose() {
     nameController.dispose();
     nameFocus.dispose();
+    locationController.dispose();
     super.dispose();
   }
 }
