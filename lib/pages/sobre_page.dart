@@ -73,7 +73,7 @@ class SobrePage extends StatelessWidget {
                   ),
                   SizedBox(height: 24),
                   Text(
-                    'Este aplicativo permite que você explore um catálogo de jogos, veja detalhes como plataformas, gêneros e conquistas, e mantenha seus jogos favoritos organizados.',
+                    'Este aplicativo é para quem, como você, vive esquecendo dos jogos que começou e nunca termina! Crie seu catálogo personalizado, acompanhe plataformas, gêneros e conquistas, e finalmente zere seus jogos pendentes com estilo.',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white70,

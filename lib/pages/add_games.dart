@@ -111,7 +111,7 @@ class _AddGamePageState extends State<AddGamePage> {
                       focusNode: nameFocus,
                       decoration: const InputDecoration(labelText: 'Nome do Jogo'),
                       onChanged: search,
-                      maxLength: 40,
+                      maxLength: 55,
                     ),
                     if (searchResults.isNotEmpty)
                       SizedBox(

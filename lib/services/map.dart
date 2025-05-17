@@ -62,6 +62,7 @@ class _LocationSelectorState extends State<LocationSelector> {
         TextField(
           controller: controller,
           decoration: const InputDecoration(labelText: 'Digite um local'),
+          maxLength: 250,
           onChanged: (value) async {
             if (value.length < 3) return;
             final results = await fetchSuggestions(value);
