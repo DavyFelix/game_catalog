@@ -130,35 +130,52 @@ void addGame(Map<String, dynamic> game, double progress, double? lat, double? ln
         centerTitle: true,
         elevation: 1,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _myGames.isEmpty
-            ? const Center(
-                child: Text(
-                  'Nenhum jogo adicionado ainda.\nClique no botão "+" para começar!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, color: Colors.black54),
-                ),
-              )
-            : ListView.builder(
-                itemCount: _myGames.length,
-                itemBuilder: (_, index) {
-                  final game = _myGames[index];
-                  return GameCard(
-                    game: game,
-                    lastModified: _formatDate(game['lastModified']),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetailsPage(game: game),
-                      ),
-                    ),
-                    onEdit: () => _showUpdateProgressDialog(index),
-                    onDelete: () => _deleteGame(index),
-                  );
-                },
-              ),
+      body: Stack(
+  children: [
+    // Fundo com imagem
+    Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/fundo.jpg'), // Caminho da imagem
+          fit: BoxFit.cover,
+        ),
       ),
+    ),
+
+    // Conteúdo principal com padding e cor de fundo com opacidade
+    Container(
+      // ignore: deprecated_member_use
+      color: Colors.white.withOpacity(0.95),
+      padding: const EdgeInsets.all(16),
+      child: _myGames.isEmpty
+          ? const Center(
+              child: Text(
+                'Nenhum jogo adicionado ainda.\nClique no botão "+" para começar!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, color: Colors.black54),
+              ),
+            )
+          : ListView.builder(
+              itemCount: _myGames.length,
+              itemBuilder: (_, index) {
+                final game = _myGames[index];
+                return GameCard(
+                  game: game,
+                  lastModified: _formatDate(game['lastModified']),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DetailsPage(game: game),
+                    ),
+                  ),
+                  onEdit: () => _showUpdateProgressDialog(index),
+                  onDelete: () => _deleteGame(index),
+                );
+              },
+            ),
+    ),
+  ],
+),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddGamePage,
         child: const Icon(Icons.add),
