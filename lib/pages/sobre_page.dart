@@ -7,7 +7,6 @@ class SobrePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Imagem de fundo cobrindo tudo
         Positioned.fill(
           child: Image.asset(
             'assets/images/menuft.png',
@@ -17,7 +16,6 @@ class SobrePage extends StatelessWidget {
             colorBlendMode: BlendMode.darken,
           ),
         ),
-        // Degradê para escurecer um pouco o fundo e dar contraste
         Positioned.fill(
           child: Container(
             decoration: BoxDecoration(

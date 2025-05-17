@@ -1,89 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+// map.dart
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class LocationSelector extends StatefulWidget {
-  final bool enabled;
-  final Function(Map<String, dynamic>?) onLocationSelected;
+/// Retorna o nome do local com base nas coordenadas geográficas (Nominatim)
+Future<String?> getPlaceNameFromCoordinates(double lat, double lon) async {
+  final url = Uri.parse(
+    'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon',
+  );
 
-  const LocationSelector({
-    super.key,
-    required this.enabled,
-    required this.onLocationSelected,
+  final response = await http.get(url, headers: {
+    'User-Agent': 'catalogo-jogos-app',
   });
 
-  @override
-  State<LocationSelector> createState() => _LocationSelectorState();
-}
-
-class _LocationSelectorState extends State<LocationSelector> {
-  final TextEditingController controller = TextEditingController();
-  List<Map<String, dynamic>> suggestions = [];
-
-  Future<List<Map<String, dynamic>>> fetchSuggestions(String input) async {
-    final url = Uri.parse(
-      'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(input)}&format=json&limit=5&addressdetails=1',
-    );
-
-    final response = await http.get(url, headers: {'User-Agent': 'flutter_app'});
-
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      return data.map<Map<String, dynamic>>((item) {
-        return {
-          'place_name': item['display_name'],
-          'lat': double.tryParse(item['lat']),
-          'lon': double.tryParse(item['lon']),
-        };
-      }).toList();
-    }
-
-    return [];
-  }
-
-  void onSelect(Map<String, dynamic> place) {
-    controller.text = place['place_name'];
-    widget.onLocationSelected(place);
-    setState(() => suggestions = []);
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!widget.enabled) return const SizedBox.shrink();
-
-    return Column(
-      children: [
-        TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Digite um local'),
-          maxLength: 250,
-          onChanged: (value) async {
-            if (value.length < 3) return;
-            final results = await fetchSuggestions(value);
-            setState(() => suggestions = results);
-          },
-        ),
-        if (suggestions.isNotEmpty)
-          SizedBox(
-            height: 150,
-            child: ListView.builder(
-              itemCount: suggestions.length,
-              itemBuilder: (_, index) {
-                final item = suggestions[index];
-                return ListTile(
-                  title: Text(item['place_name']),
-                  onTap: () => onSelect(item),
-                );
-              },
-            ),
-          ),
-      ],
-    );
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data['display_name'];
+  } else {
+    return null;
   }
 }

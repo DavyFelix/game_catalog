@@ -5,7 +5,7 @@ class GameCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
-  final String lastModified; // Já formatada (dd/MM/yyyy HH:mm)
+  final String lastModified; 
 
   const GameCard({
     super.key,

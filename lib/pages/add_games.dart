@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/api_jogos.dart';
-import '../services/map.dart';  // Import do widget LocationSelector (ajuste o caminho conforme seu projeto)
+import '../services/map.dart';
+import '../services/locationselector.dart'; 
 
 class AddGamePage extends StatefulWidget {
   final Function(Map<String, dynamic> game, double progress, double? lat, double? lon) onAdd;
@@ -64,37 +65,41 @@ class _AddGamePageState extends State<AddGamePage> {
     return await Geolocator.getCurrentPosition();
   }
 
-  void submit() {
-    if (selectedGame == null || progress == 0.0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecione um jogo e defina o progresso.')),
-      );
-      return;
-    }
-
-    double? lat;
-    double? lon;
-    String? placeName;
-
-    if (useCurrentLocation) {
-      lat = userPosition?.latitude;
-      lon = userPosition?.longitude;
-      placeName = 'Localização atual';
-    } else {
-      lat = selectedLocation?['lat'];
-      lon = selectedLocation?['lon'];
-      placeName = selectedLocation?['place_name'];
-    }
-
-    // Adiciona os dados ao objeto do jogo
-    selectedGame!['progress'] = progress;
-    selectedGame!['latitude'] = lat;
-    selectedGame!['longitude'] = lon;
-    selectedGame!['place_name'] = placeName;
-
-    widget.onAdd(selectedGame!, progress, lat, lon);
-    Navigator.pop(context);
+ void submit() async {
+  if (selectedGame == null || progress == 0.0) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Selecione um jogo e defina o progresso.')),
+    );
+    return;
   }
+
+  double? lat;
+  double? lon;
+  String? placeName;
+
+  if (useCurrentLocation) {
+    lat = userPosition?.latitude;
+    lon = userPosition?.longitude;
+
+    if (lat != null && lon != null) {
+      placeName = await getPlaceNameFromCoordinates(lat, lon);
+    }
+  } else {
+    lat = selectedLocation?['lat'];
+    lon = selectedLocation?['lon'];
+    placeName = selectedLocation?['place_name'];
+  }
+
+  // Adiciona os dados ao objeto do jogo
+  selectedGame!['progress'] = progress;
+  selectedGame!['latitude'] = lat;
+  selectedGame!['longitude'] = lon;
+  selectedGame!['place_name'] = placeName;
+
+  widget.onAdd(selectedGame!, progress, lat, lon);
+  Navigator.pop(context);
+}
+
 
 @override
 Widget build(BuildContext context) {
@@ -112,11 +117,12 @@ Widget build(BuildContext context) {
           ),
         ),
 
-        // 🧱 Conteúdo com fundo transparente
+        
         Padding(
           padding: const EdgeInsets.all(5),
           child: Container(
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               color: Colors.white.withOpacity(0.95),
               borderRadius: BorderRadius.circular(12),
             ),

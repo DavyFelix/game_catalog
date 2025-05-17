@@ -142,7 +142,7 @@ void addGame(Map<String, dynamic> game, double progress, double? lat, double? ln
           ),
         ),
 
-        // Conteúdo principal com padding e cor de fundo com opacidade
+      
         Container(
           // ignore: deprecated_member_use
           color: Colors.white.withOpacity(0.95),
