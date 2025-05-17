@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:game_catalog/pages/sobre_page.dart';
+import 'package:game_catalog/routers/routers.dart';
 
 class DrawerMenu extends StatelessWidget {
   const DrawerMenu({super.key});
@@ -13,7 +13,7 @@ class DrawerMenu extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/menuft.png'),
-                fit: BoxFit.cover, // ou BoxFit.fitWidth se preferir
+                fit: BoxFit.cover
               ),
             ),
             child: Center(
@@ -66,12 +66,7 @@ class DrawerMenu extends StatelessWidget {
             title: Text("Sobre"),
             trailing: Icon(Icons.arrow_right),
             onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const SobrePage(),
-              ),
-            );
+              Navigator.pushNamed(context, Routes.SOBRE);
           },
           ),
         ],

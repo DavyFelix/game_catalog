@@ -144,7 +144,7 @@ class _DetailsPageState extends State<DetailsPage> {
             title: Text(ach['name']),
             subtitle: Text(ach['description'] ?? ''),
           );
-        }).toList(),
+        }),
       ],
     );
   }

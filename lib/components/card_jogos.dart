@@ -14,7 +14,20 @@ class GameCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.lastModified,
+    
   });
+  String _formatLocation(Map<String, dynamic> game) {
+  if (game['place_name'] != null && game['place_name'].toString().isNotEmpty) {
+    final place = game['place_name'].toString();
+    return place.length > 50 ? '${place.substring(0, 47)}...' : place;
+  } else if (game['latitude'] != null && game['longitude'] != null) {
+    final lat = game['latitude'].toStringAsFixed(4);
+    final lon = game['longitude'].toStringAsFixed(4);
+    return '($lat, $lon)';
+  } else {
+    return 'Localização não informada';
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +54,8 @@ class GameCard extends StatelessWidget {
         ),
         subtitle: Text(
           'Nota: ${game['rating']} | Progresso: ${game['progress']}%\n'
-          'Última Modificação: $lastModified',
+          'Última Modificação: $lastModified\n'
+          '${_formatLocation(game)}',
           style: const TextStyle(height: 1.4),
         ),
         trailing: PopupMenuButton<String>(

@@ -74,14 +74,23 @@ class _AddGamePageState extends State<AddGamePage> {
 
     double? lat;
     double? lon;
+    String? placeName;
 
     if (useCurrentLocation) {
       lat = userPosition?.latitude;
       lon = userPosition?.longitude;
+      placeName = 'Localização atual';
     } else {
       lat = selectedLocation?['lat'];
       lon = selectedLocation?['lon'];
+      placeName = selectedLocation?['place_name'];
     }
+
+    // Adiciona os dados ao objeto do jogo
+    selectedGame!['progress'] = progress;
+    selectedGame!['latitude'] = lat;
+    selectedGame!['longitude'] = lon;
+    selectedGame!['place_name'] = placeName;
 
     widget.onAdd(selectedGame!, progress, lat, lon);
     Navigator.pop(context);
