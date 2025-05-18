@@ -99,5 +99,5 @@ Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](
 ![Drawer Aberto](assets/images/trabalho%20pos/drawer%20aberto.png)
 
 ### 🔁 Página de Atualização
-![Atualizar Progresso](assets/images/trabalho%20pos/PrincipalPage.png)
+![Atualizar Progresso](assets/images/trabalho%20pos/ATUALIZADADOS.png)
 
