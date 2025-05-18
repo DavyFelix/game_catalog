@@ -84,20 +84,20 @@ Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](
 ## 📷 Fotos do Projeto 
 
 ### 🏠 Página Principal
-![Página Principal](assets/images/trabalho pos/PrincipalPage.png)
+![Página Principal](assets/images/trabalho%20pos/PrincipalPage.png)
 
 ### ℹ️ Página Sobre
-![Página Sobre](assets/images/trabalho pos/SobrePAGE.png)
+![Página Sobre](assets/images/trabalho%20pos/SobrePAGE.png)
 
 ### 🎮 Catálogo com Jogo Inserido
-![Catálogo com Jogo](assets/images/trabalho pos/tela com jogo adicionado.png)
+![Catálogo com Jogo](assets/images/trabalho%20pos/tela%20com%20jogo%20adicionado.png)
 
 ### 📋 Página de Detalhes
-![Detalhes do Jogo](assets/images/trabalho pos/tela de detalhes .png)
+![Detalhes do Jogo](assets/images/trabalho%20pos/tela%20de%20detalhes%20.png)
 
 ### 📂 Drawer Aberto
-![Drawer Aberto](assets/images/trabalho pos/drawer aberto.png)
+![Drawer Aberto](assets/images/trabalho%20pos/drawer%20aberto.png)
 
 ### 🔁 Página de Atualização
-![Atualizar Progresso](assets/images/trabalho pos/PrincipalPage.png)
+![Atualizar Progresso](assets/images/trabalho%20pos/PrincipalPage.png)
 
