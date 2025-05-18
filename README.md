@@ -83,4 +83,4 @@ Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](
 
 ## 📷 Fotos do Projeto 
 
-![Screenshot do app](https://drive.google.com/uc?id=1qjrEtkEuJgdyw8Ini961LRdVmBUihGvK)
+![Screenshot do app](assets/images/trabalho%20pos/PrincipalPage.png)
