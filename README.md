@@ -78,14 +78,9 @@ RawAutocomplete<Map<String, dynamic>>(
 - **Filtrar por gênero**: Permitir filtrar jogos por gênero, como ação, RPG, etc.
 - **Melhorar o design**: Adicionar animações e efeitos visuais para uma experiência mais imersiva.
 
-## 🤝 Contribuindo
-
-1. **Fork** este repositório.
-2. **Crie uma branch** para sua nova funcionalidade: `git checkout -b minha-nova-funcionalidade`.
-3. **Commit suas alterações**: `git commit -m 'Adiciona nova funcionalidade'`.
-4. **Push** para a branch: `git push origin minha-nova-funcionalidade`.
-5. **Abra um Pull Request**.
-
-## 📄 Licença
-
+## 📄 Licença 
 Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 📷 Fotos do Projeto 
+
+![Screenshot do app](https://drive.google.com/uc?id=1qjrEtkEuJgdyw8Ini961LRdVmBUihGvK)

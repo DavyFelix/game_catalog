@@ -107,114 +107,129 @@ Widget build(BuildContext context) {
     appBar: AppBar(title: const Text('Adicionar Novo Jogo')),
     body: Stack(
       children: [
-        // 📷 Imagem de fundo
         Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/fundo.jpg'), 
+              image: AssetImage('assets/images/fundo.jpg'),
               fit: BoxFit.cover,
             ),
           ),
         ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth = constraints.maxWidth < 600 ? constraints.maxWidth : 600.0;
 
-        
-        Padding(
-          padding: const EdgeInsets.all(5),
-          child: Container(
-            decoration: BoxDecoration(
-              // ignore: deprecated_member_use
-              color: Colors.white.withOpacity(0.95),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: FutureBuilder<Position>(
-              future: locationFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return const Center(child: Text("Ocorreu um erro ao obter localização."));
-                } else {
-                  userPosition = snapshot.data;
+            return Center(
+              child: Container(
+                width: maxWidth,
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: FutureBuilder<Position>(
+                  future: locationFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return const Center(child: Text("Ocorreu um erro ao obter localização."));
+                    } else {
+                      userPosition = snapshot.data;
 
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: nameController,
-                          focusNode: nameFocus,
-                          decoration: const InputDecoration(labelText: 'Nome do Jogo'),
-                          onChanged: search,
-                          maxLength: 55,
-                        ),
-                        if (searchResults.isNotEmpty)
-                          SizedBox(
-                            height: 200,
-                            child: ListView.builder(
-                              itemCount: searchResults.length,
-                              itemBuilder: (_, index) {
-                                final game = searchResults[index];
-                                return ListTile(
-                                  leading: game['background_image'] != null
-                                      ? Image.network(game['background_image'], width: 40, height: 40, fit: BoxFit.cover)
-                                      : const Icon(Icons.videogame_asset),
-                                  title: Text(game['name']),
-                                  onTap: () {
-                                    nameController.text = game['name'];
-                                    setState(() {
-                                      selectedGame = game;
-                                      searchResults = [];
-                                    });
-                                    FocusScope.of(context).unfocus();
+                      return SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Campo Nome Jogo
+                            TextField(
+                              controller: nameController,
+                              focusNode: nameFocus,
+                              decoration: const InputDecoration(labelText: 'Nome do Jogo'),
+                              onChanged: search,
+                              maxLength: 55,
+                              textInputAction: TextInputAction.done,
+                            ),
+
+                            if (searchResults.isNotEmpty)
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight: MediaQuery.of(context).size.height * 0.3,
+                                ),
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: searchResults.length,
+                                  itemBuilder: (_, index) {
+                                    final game = searchResults[index];
+                                    return ListTile(
+                                      leading: game['background_image'] != null
+                                          ? Image.network(game['background_image'],
+                                              width: 40, height: 40, fit: BoxFit.cover)
+                                          : const Icon(Icons.videogame_asset),
+                                      title: Text(game['name']),
+                                      onTap: () {
+                                        nameController.text = game['name'];
+                                        FocusScope.of(context).unfocus();
+                                        setState(() {
+                                          selectedGame = game;
+                                          searchResults = [];
+                                        });
+                                      },
+                                    );
                                   },
-                                );
+                                ),
+                              ),
+
+                            const SizedBox(height: 20),
+                            Text('Progresso: ${progress.toStringAsFixed(1)}%'),
+                            Slider(
+                              value: progress,
+                              min: 0.0,
+                              max: 100.0,
+                              divisions: 100,
+                              label: '${progress.toStringAsFixed(1)}%',
+                              onChanged: (value) => setState(() => progress = value),
+                            ),
+
+                            const SizedBox(height: 20),
+                            SwitchListTile(
+                              title: const Text('Usar localização atual'),
+                              value: useCurrentLocation,
+                              onChanged: (val) {
+                                setState(() {
+                                  useCurrentLocation = val;
+                                  selectedLocation = null;
+                                  locationController.clear();
+                                });
                               },
                             ),
-                          ),
-                        const SizedBox(height: 20),
-                        Text('Progresso: ${progress.toStringAsFixed(1)}%'),
-                        Slider(
-                          value: progress,
-                          min: 0.0,
-                          max: 100.0,
-                          divisions: 100,
-                          label: '${progress.toStringAsFixed(1)}%',
-                          onChanged: (value) => setState(() => progress = value),
+
+                            if (!useCurrentLocation)
+                              LocationSelector(
+                                enabled: true,
+                                onLocationSelected: (place) {
+                                  setState(() {
+                                    selectedLocation = place;
+                                  });
+                                },
+                              ),
+
+                            const SizedBox(height: 20),
+
+                            ElevatedButton(
+                              onPressed: (selectedGame != null && progress > 0) ? submit : null,
+                              child: const Text('Adicionar Jogo'),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-                        const Text('Última vez em que foi jogado:'),
-                        SwitchListTile(
-                          title: const Text('Usar localização atual'),
-                          value: useCurrentLocation,
-                          onChanged: (val) {
-                            setState(() {
-                              useCurrentLocation = val;
-                              selectedLocation = null;
-                              locationController.clear();
-                            });
-                          },
-                        ),
-                        if (!useCurrentLocation)
-                          LocationSelector(
-                            enabled: true,
-                            onLocationSelected: (place) {
-                              setState(() {
-                                selectedLocation = place;
-                              });
-                            },
-                          ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: submit,
-                          child: const Text('Adicionar Jogo'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ],
     ),

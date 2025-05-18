@@ -32,60 +32,74 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.game['name'],
-          style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+          style: const TextStyle(color: Colors.white),
         ),
-       backgroundColor: ColorsbBars.fromGenre(
-        (gameDetails?['genres']?.isNotEmpty ?? false)
-            ? gameDetails!['genres'][0]['name']
-            : '',
-      ),
-
+        backgroundColor: ColorsbBars.fromGenre(
+          (gameDetails?['genres']?.isNotEmpty ?? false)
+              ? gameDetails!['genres'][0]['name']
+              : '',
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : gameDetails == null
               ? const Center(child: Text('Erro ao carregar detalhes do jogo'))
-              : Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildImage(),
-                        const SizedBox(height: 16),
-                        _buildDescription(),
-                        const SizedBox(height: 20),
-                        _buildPlatformList(theme),
-                        const SizedBox(height: 16),
-                        _buildGenreList(theme),
-                        const SizedBox(height: 20),
-                        _buildAchievements(theme),
-                      ],
-                    ),
-                  ),
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isSmallScreen = constraints.maxWidth < 600;
+
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 800),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildImage(isSmallScreen),
+                              const SizedBox(height: 16),
+                              _buildDescription(isSmallScreen),
+                              const SizedBox(height: 20),
+                              _buildPlatformList(theme),
+                              const SizedBox(height: 16),
+                              _buildGenreList(theme),
+                              const SizedBox(height: 20),
+                              _buildAchievements(theme, isSmallScreen),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(bool isSmallScreen) {
     final imageUrl = gameDetails!['background_image'];
     return imageUrl != null
         ? ClipRRect(
             borderRadius: BorderRadius.circular(5),
-            child: Image.network(imageUrl),
+            child: Image.network(
+              imageUrl,
+              width: double.infinity,
+              height: isSmallScreen ? 180 : 300,
+              fit: BoxFit.cover,
+            ),
           )
         : const SizedBox.shrink();
   }
 
-  Widget _buildDescription() {
+  Widget _buildDescription(bool isSmallScreen) {
     return Text(
       gameDetails!['description_raw'] ?? 'Sem descrição disponível.',
-      style: const TextStyle(fontSize: 16),
+      style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
     );
   }
 
@@ -93,9 +107,8 @@ class _DetailsPageState extends State<DetailsPage> {
     final platforms = gameDetails!['platforms'] as List?;
     if (platforms == null || platforms.isEmpty) return const SizedBox.shrink();
 
-    final platformNames = platforms
-        .map((p) => p['platform']['name'] as String)
-        .join(', ');
+    final platformNames =
+        platforms.map((p) => p['platform']['name'] as String).join(', ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,9 +124,7 @@ class _DetailsPageState extends State<DetailsPage> {
     final genres = gameDetails!['genres'] as List?;
     if (genres == null || genres.isEmpty) return const SizedBox.shrink();
 
-    final genreNames = genres
-        .map((g) => g['name'] as String)
-        .join(', ');
+    final genreNames = genres.map((g) => g['name'] as String).join(', ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +136,7 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
-  Widget _buildAchievements(ThemeData theme) {
+  Widget _buildAchievements(ThemeData theme, bool isSmallScreen) {
     final achievements = gameDetails!['achievements'] as List?;
     if (achievements == null || achievements.isEmpty) {
       return const SizedBox.shrink();
@@ -141,8 +152,14 @@ class _DetailsPageState extends State<DetailsPage> {
             leading: ach['image'] != null
                 ? Image.network(ach['image'], width: 40, height: 40)
                 : const Icon(Icons.emoji_events),
-            title: Text(ach['name']),
-            subtitle: Text(ach['description'] ?? ''),
+            title: Text(
+              ach['name'],
+              style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+            ),
+            subtitle: Text(
+              ach['description'] ?? '',
+              style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+            ),
           );
         }),
       ],
