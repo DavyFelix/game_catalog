@@ -82,5 +82,16 @@ RawAutocomplete<Map<String, dynamic>>(
 Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ## 📷 Fotos do Projeto 
-
+**Principal Page**
 ![Screenshot do app](assets/images/trabalho%20pos/PrincipalPage.png)
+**SobrePAGE**
+![Screenshot do app](assets/images/trabalho%20pos/SobrePAGE.png)
+**Principal Page com Jogo Inserido**
+![Screenshot do app](assets/images/trabalho%20pos/tela%20com%20jogo%20adicionado.png)
+**DetailsPAGE**
+![Screenshot do app](assets/images/trabalho%20pos/tela%20de%20detalhes%20.png)
+**Drawer Aberto**
+![Screenshot do app](assets/images/trabalho%20pos/drawer%20aberto.png)
+**AtualizaPAGE**
+![Screenshot do app](assets/images/trabalho%20pos/PrincipalPage.png)
+
