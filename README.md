@@ -82,21 +82,22 @@ RawAutocomplete<Map<String, dynamic>>(
 Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ## 📷 Fotos do Projeto 
-**Principal Page**
-![Screenshot do app](assets/images/trabalho%20pos/PrincipalPage.png)
 
-**SobrePAGE**
-![Screenshot do app](assets/images/trabalho%20pos/SobrePAGE.png)
+### 🏠 Página Principal
+![Página Principal](assets/images/trabalho pos/PrincipalPage.png)
 
-**Principal Page com Jogo Inserido**
-![Screenshot do app](assets/images/trabalho%20pos/tela%20com%20jogo%20adicionado.png)
+### ℹ️ Página Sobre
+![Página Sobre](assets/images/trabalho pos/SobrePAGE.png)
 
-**DetailsPAGE**
-![Screenshot do app](assets/images/trabalho%20pos/tela%20de%20detalhes%20.png)
+### 🎮 Catálogo com Jogo Inserido
+![Catálogo com Jogo](assets/images/trabalho pos/tela com jogo adicionado.png)
 
-**Drawer Aberto**
-![Screenshot do app](assets/images/trabalho%20pos/drawer%20aberto.png)
+### 📋 Página de Detalhes
+![Detalhes do Jogo](assets/images/trabalho pos/tela de detalhes .png)
 
-**AtualizaPAGE**
-![Screenshot do app](assets/images/trabalho%20pos/PrincipalPage.png)
+### 📂 Drawer Aberto
+![Drawer Aberto](assets/images/trabalho pos/drawer aberto.png)
+
+### 🔁 Página de Atualização
+![Atualizar Progresso](assets/images/trabalho pos/PrincipalPage.png)
 
