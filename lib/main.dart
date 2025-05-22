@@ -10,7 +10,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => GameProvider()),
+        ChangeNotifierProvider<GameProvider>(create: (context) => GameProvider()),
       ],
       child: const App(),
     ),
