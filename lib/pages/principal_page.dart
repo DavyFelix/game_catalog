@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 
 import '../components/card_jogos.dart';
 import '../components/drawermenu.dart';
-import 'details.dart';
-import '../pages/upd_games.dart';
+import 'details_page.dart';
+import 'upd_games_page.dart';
 import '../providers/gameprovider.dart';
 
 class HomePage extends StatelessWidget {

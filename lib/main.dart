@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:game_catalog/pages/add_games.dart';
+import 'package:game_catalog/pages/add_games_page.dart';
 import 'package:game_catalog/pages/principal_page.dart';
 import 'package:game_catalog/pages/sobre_page.dart';
 import 'package:game_catalog/routers/routers.dart';
