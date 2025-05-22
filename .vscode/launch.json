@@ -8,7 +8,7 @@
             "name": "game_catalog",
             "request": "launch",
             "type": "dart",
-            "program": "lib/providers/main.dart"
+            "program": "lib/main.dart"
         },
         {
             "name": "game_catalog (profile mode)",

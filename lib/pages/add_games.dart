@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import '../services/api_jogos.dart';
 import '../services/map.dart';
 import '../services/locationselector.dart'; 
+import 'package:game_catalog/providers/gameprovider.dart';
 
 class AddGamePage extends StatefulWidget {
-  final Function(Map<String, dynamic> game, double progress, double? lat, double? lon) onAdd;
 
-  const AddGamePage({super.key, required this.onAdd});
+  const AddGamePage({super.key});
 
   @override
   State<AddGamePage> createState() => _AddGamePageState();
@@ -90,13 +91,22 @@ class _AddGamePageState extends State<AddGamePage> {
     placeName = selectedLocation?['place_name'];
   }
 
-  // Adiciona os dados ao objeto do jogo
-  selectedGame!['progress'] = progress;
-  selectedGame!['latitude'] = lat;
-  selectedGame!['longitude'] = lon;
-  selectedGame!['place_name'] = placeName;
+  final game = {
+    ...selectedGame!,
+    'progress': progress,
+    'latitude': lat,
+    'longitude': lon,
+    'place_name': placeName,
+  };
 
-  widget.onAdd(selectedGame!, progress, lat, lon);
+  // Usa o Provider para adicionar o jogo
+  Provider.of<GameProvider>(context, listen: false).addGame(
+    game,
+    progress,
+    lat,
+    lon,
+  );
+
   Navigator.pop(context);
 }
 

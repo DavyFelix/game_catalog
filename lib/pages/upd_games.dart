@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:game_catalog/providers/gameprovider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import '../services/map.dart';
 import '../services/locationselector.dart';
 
 class UpdateProgressPage extends StatefulWidget {
-  final double initialProgress;
-  final double? initialLat;
-  final double? initialLon;
-  final Function(double, double?, double?, String?) onUpdate;
+  final int gameIndex;
 
   const UpdateProgressPage({
     super.key,
-    required this.initialProgress,
-    required this.onUpdate,
-    this.initialLat,
-    this.initialLon,
+    required this.gameIndex,
   });
 
   @override
@@ -29,11 +25,15 @@ class _UpdateProgressPageState extends State<UpdateProgressPage> {
   Position? userPosition;
 
   @override
-  void initState() {
-    super.initState();
-    progress = widget.initialProgress;
-    locationFuture = _getLocation();
-  }
+ void initState() {
+  super.initState();
+
+  final gameProvider = Provider.of<GameProvider>(context, listen: false);
+  final game = gameProvider.games[widget.gameIndex];
+
+  progress = (game['progress'] ?? 0.0).toDouble();
+  locationFuture = _getLocation();
+}
 
   Future<Position> _getLocation() async {
     bool isEnabled = await Geolocator.isLocationServiceEnabled();
@@ -52,26 +52,33 @@ class _UpdateProgressPageState extends State<UpdateProgressPage> {
   }
 
   Future<void> submit() async {
-    double? lat;
-    double? lon;
-    String? placeName;
+  double? lat;
+  double? lon;
+  String? placeName;
 
-    if (useCurrentLocation) {
-      lat = userPosition?.latitude;
-      lon = userPosition?.longitude;
+  if (useCurrentLocation) {
+    lat = userPosition?.latitude;
+    lon = userPosition?.longitude;
 
-      if (lat != null && lon != null) {
-        placeName = await getPlaceNameFromCoordinates(lat, lon);
-      }
-    } else {
-      lat = selectedLocation?['lat'];
-      lon = selectedLocation?['lon'];
-      placeName = selectedLocation?['place_name'];
+    if (lat != null && lon != null) {
+      placeName = await getPlaceNameFromCoordinates(lat, lon);
     }
-
-    widget.onUpdate(progress, lat, lon, placeName);
-    Navigator.pop(context);
+  } else {
+    lat = selectedLocation?['lat'];
+    lon = selectedLocation?['lon'];
+    placeName = selectedLocation?['place_name'];
   }
+
+  Provider.of<GameProvider>(context, listen: false).updateGame(
+    widget.gameIndex,
+    progress,
+    lat,
+    lon,
+    placeName,
+  );
+
+  Navigator.pop(context);
+}
 
   @override
   Widget build(BuildContext context) {
