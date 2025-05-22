@@ -93,7 +93,7 @@ class SobrePage extends StatelessWidget {
                   ),
                   SizedBox(height: 30),
                   Text(
-                    'Versão: 1.0.0',
+                    'Versão: 1.0.1',
                     style: TextStyle(
                       fontSize: 15,
                       fontStyle: FontStyle.italic,
